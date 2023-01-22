@@ -1,13 +1,8 @@
 from aiogram.utils import executor
 from config import *
-
-
-
-
-
-
-
-
+from topic import *
+from subtopic import *
+from user import *
 
 
 async def shutdown(dispatcher: Dispatcher):

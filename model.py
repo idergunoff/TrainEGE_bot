@@ -6,10 +6,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 
-# DATABASE_NAME = 'superuser:superuser123456@localhost:5432/alco24kzn_db'
-DATABASE_NAME = 'idergunoff:slon9124@ovz1.j56960636.m29on.vps.myjino.ru:49359/trainEGE_db'
+DATABASE_NAME = 'trainEGE_db.sqlite'
 
-engine = create_engine(f'postgresql+psycopg2://{DATABASE_NAME}', echo=False)
+engine = create_engine(f'sqlite:///{DATABASE_NAME}', echo=False)
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()
@@ -19,6 +18,7 @@ class User(Base):
     __tablename__ = 'user'
 
     t_id = Column(BigInteger, primary_key=True)
+    username = Column(String)
     name = Column(String)
     surname = Column(String)
     year = Column(Integer)
