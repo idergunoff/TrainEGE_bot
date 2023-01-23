@@ -12,6 +12,14 @@ cb_up_down_index = CallbackData('up_down_index', 'topic_id', 'up_down') # пов
 cb_edit_topic = CallbackData('edit_topic', 'topic_id')  # выбор темы для ее редактирования
 cb_delete_topic = CallbackData('delete_topic', 'topic_id')  # выбор темы для ее удаления
 
+cb_subtopic_menu = CallbackData('subtopic_menu', 'topic_id', 'type') # выбор темы для меню подте
+
+cb_subtopic = CallbackData('subtopic', 'sub_id')    # выбор подтемы
+cb_index_subtopic = CallbackData("index_subtopic", "sub_id")    # выбор подтемы для изменения порядка
+cb_up_down_index_subtopic = CallbackData('up_down_index_sub', 'sub_id', 'up_down') # повысить или понизить индекс подтемы
+cb_edit_subtopic = CallbackData('edit_subtopic', 'sub_id')  # выбор подтемы для ее редактирования
+cb_delete_subtopic = CallbackData('delete_subtopic', 'sub_id')  # выбор подтемы для ее удаления
+cb_back_subtopic = CallbackData('subtopic_back', 'topic_id') # выбор темы для выхода к списку подтем
 
 
 # KeyboardButton
@@ -38,11 +46,6 @@ btn_index_topic = InlineKeyboardButton(text=emojize('Порядок тем:up-do
 btn_edit_topic = InlineKeyboardButton(text=emojize('Изменить тему:wrench:'), callback_data='edit_topic')
 btn_delete_topic = InlineKeyboardButton(text=emojize('Удалить тему:wastebasket:'), callback_data='delete_topic')
 
-btn_new_subtopic = InlineKeyboardButton(text=emojize('Новая подтема:memo:'), callback_data='new_subtopic')
-btn_index_subtopic = InlineKeyboardButton(text=emojize('Порядок подтем:up-down_arrow:'), callback_data='index_subtopic')
-btn_edit_subtopic = InlineKeyboardButton(text=emojize('Изменить подтему:wrench:'), callback_data='edit_subtopic')
-btn_delete_subtopic = InlineKeyboardButton(text=emojize('Удалить подтему:wastebasket:'), callback_data='delete_subtopic')
-
 
 # btn_link_bot = InlineKeyboardButton(emojize(':robot:Перейти в бот'), url='https://t.me/alco24kzn_bot')
 
@@ -61,4 +64,7 @@ class TrainStates(StatesGroup):
     NEW_TOPIC = State()
     EDIT_TOPIC = State()
     NEW_SUBTOPIC = State()
+    INDEX_SUBTOPIC = State()
     EDIT_SUBTOPIC = State()
+    CHOOSE_EDIT_SUBTOPIC = State()
+    CHOOSE_DELETE_SUBTOPIC = State()
