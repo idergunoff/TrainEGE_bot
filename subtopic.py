@@ -1,4 +1,3 @@
-from button import *
 from func.func_subtopic import *
 from func.func_user import check_admin
 from func.func_topic import topic_by_id
@@ -14,25 +13,9 @@ from func.func_topic import topic_by_id
 async def open_subtopics(call: types.CallbackQuery, callback_data: dict):
     topic = await topic_by_id(callback_data['topic_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
-    kb_subtopic = InlineKeyboardMarkup(row_width=2)
-    subtopics = await get_subtopics(topic.id)
-    if len(subtopics) > 0:
-        for i in subtopics:
-            kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}', callback_data=cb_subtopic.new(sub_id=i.id)))
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
     if await check_admin(call.from_user.id):
-        btn_new_subtopic = InlineKeyboardButton(
-            text=emojize('Новая подтема:memo:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
-        btn_index_subtopic = InlineKeyboardButton(
-            text=emojize('Порядок подтем:up-down_arrow:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
-        btn_edit_subtopic = InlineKeyboardButton(
-            text=emojize('Изменить подтему:wrench:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
-        btn_delete_subtopic = InlineKeyboardButton(
-            text=emojize('Удалить подтему:wastebasket:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
-        kb_subtopic.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+        await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
     mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
     await call.message.edit_text(mes, reply_markup=kb_subtopic)
@@ -56,12 +39,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'index':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "index_subtopic"')
         await TrainStates.INDEX_SUBTOPIC.set()
-        kb_subtopic = InlineKeyboardMarkup(row_width=2)
-        subtopics = await get_subtopics(callback_data['topic_id'])
-        for i in subtopics:
-            kb_subtopic.insert(InlineKeyboardButton(
-                text=f'{topic.index}.{i.index}. {i.title}',
-                callback_data=cb_index_subtopic.new(sub_id=i.id)))
+        kb_subtopic = await  create_kb_subtopic(topic, cb_index_subtopic)
         kb_subtopic.insert(InlineKeyboardButton(
                 text=emojize(':BACK_arrow:Назад'),
                 callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -71,12 +49,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'edit':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_edit_subtopic"')
         await TrainStates.CHOOSE_EDIT_SUBTOPIC.set()
-        kb_subtopic = InlineKeyboardMarkup(row_width=2)
-        subtopics = await get_subtopics(topic.id)
-        for i in subtopics:
-            kb_subtopic.insert(InlineKeyboardButton(
-                text=f'{topic.index}.{i.index}. {i.title}',
-                callback_data=cb_edit_subtopic.new(sub_id=i.id)))
+        kb_subtopic = await create_kb_subtopic(topic, cb_edit_subtopic)
         kb_subtopic.insert(InlineKeyboardButton(
             text=emojize(':BACK_arrow:Назад'),
             callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -85,12 +58,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'delete':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_delete_subtopic"')
         await TrainStates.CHOOSE_DELETE_SUBTOPIC.set()
-        kb_subtopic = InlineKeyboardMarkup(row_width=2)
-        subtopics = await get_subtopics(topic.id)
-        for i in subtopics:
-            kb_subtopic.insert(
-                InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
-                callback_data=cb_delete_subtopic.new(sub_id=i.id)))
+        kb_subtopic = await create_kb_subtopic(topic, cb_delete_subtopic)
         kb_subtopic.insert(InlineKeyboardButton(
             text=emojize(':BACK_arrow:Назад'),
             callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -115,26 +83,9 @@ async def add_subtopic(msg: types.Message, state: FSMContext):
         logger.success(f'USER "{msg.from_user.id} - {msg.from_user.username}" ADD SUBTOPIC {msg.text}')
         mes = emojize(f'Подтема <b>{msg.text}</b> добавлена в раздел <b>"{topic.title}"</b>.')
         await bot.send_message(msg.from_user.id, mes)
-        kb_subtopic = InlineKeyboardMarkup(row_width=2)
-        subtopics = await get_subtopics(topic.id)
-        if len(subtopics) > 0:
-            for i in subtopics:
-                kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
-                                                        callback_data=cb_subtopic.new(sub_id=i.id)))
+        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
         if await check_admin(msg.from_user.id):
-            btn_new_subtopic = InlineKeyboardButton(
-                text=emojize('Новая подтема:memo:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
-            btn_index_subtopic = InlineKeyboardButton(
-                text=emojize('Порядок подтем:up-down_arrow:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
-            btn_edit_subtopic = InlineKeyboardButton(
-                text=emojize('Изменить подтему:wrench:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
-            btn_delete_subtopic = InlineKeyboardButton(
-                text=emojize('Удалить подтему:wastebasket:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
-            kb_subtopic.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+            await add_kb_admin(topic, kb_subtopic)
         kb_subtopic.row(btn_back_topic)
         mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
         await bot.send_message(msg.from_user.id, mes, reply_markup=kb_subtopic)
@@ -207,26 +158,9 @@ async def back_subtopic(call: types.CallbackQuery, callback_data: dict, state: F
     await state.finish()
     topic = await topic_by_id(callback_data['topic_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
-    kb_subtopic = InlineKeyboardMarkup(row_width=2)
-    subtopics = await get_subtopics(topic.id)
-    if len(subtopics) > 0:
-        for i in subtopics:
-            kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
-                                                    callback_data=cb_subtopic.new(sub_id=i.id)))
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
     if await check_admin(call.from_user.id):
-        btn_new_subtopic = InlineKeyboardButton(
-            text=emojize('Новая подтема:memo:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
-        btn_index_subtopic = InlineKeyboardButton(
-            text=emojize('Порядок подтем:up-down_arrow:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
-        btn_edit_subtopic = InlineKeyboardButton(
-            text=emojize('Изменить подтему:wrench:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
-        btn_delete_subtopic = InlineKeyboardButton(
-            text=emojize('Удалить подтему:wastebasket:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
-        kb_subtopic.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+        await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
     mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
     await call.message.edit_text(mes, reply_markup=kb_subtopic)
@@ -265,26 +199,9 @@ async def edit_subtopic_db(msg: types.Message, state: FSMContext):
         mes = emojize(f'Подтема изменена на <b>{msg.text}</b>.')
         await bot.send_message(msg.from_user.id, mes)
         topic = await topic_by_id(subtopic.topic_id)
-        kb_subtopic = InlineKeyboardMarkup(row_width=2)
-        subtopics = await get_subtopics(topic.id)
-        if len(subtopics) > 0:
-            for i in subtopics:
-                kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
-                                                        callback_data=cb_subtopic.new(sub_id=i.id)))
+        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
         if await check_admin(msg.from_user.id):
-            btn_new_subtopic = InlineKeyboardButton(
-                text=emojize('Новая подтема:memo:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
-            btn_index_subtopic = InlineKeyboardButton(
-                text=emojize('Порядок подтем:up-down_arrow:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
-            btn_edit_subtopic = InlineKeyboardButton(
-                text=emojize('Изменить подтему:wrench:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
-            btn_delete_subtopic = InlineKeyboardButton(
-                text=emojize('Удалить подтему:wastebasket:'),
-                callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
-            kb_subtopic.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+            await add_kb_admin(topic, kb_subtopic)
         kb_subtopic.row(btn_back_topic)
         mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
         await bot.send_message(msg.from_user.id, mes, reply_markup=kb_subtopic)
@@ -311,27 +228,10 @@ async def delete_subtopic_db(call: types.CallbackQuery, callback_data: dict, sta
         mes = f'Подтема <b>{subtopic_title}</b> удалена.'
         logger.success(f'User "{call.from_user.id} - {call.from_user.username}" SUBTOPIC {subtopic_title} DELETE')
     await bot.send_message(call.from_user.id, mes)
-    kb_subtopic = InlineKeyboardMarkup(row_width=2)
     topic = await topic_by_id(topic_id)
-    subtopics = await get_subtopics(topic_id)
-    if len(subtopics) > 0:
-        for i in subtopics:
-            kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
-                                                    callback_data=cb_subtopic.new(sub_id=i.id)))
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
     if await check_admin(call.from_user.id):
-        btn_new_subtopic = InlineKeyboardButton(
-            text=emojize('Новая подтема:memo:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
-        btn_index_subtopic = InlineKeyboardButton(
-            text=emojize('Порядок подтем:up-down_arrow:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
-        btn_edit_subtopic = InlineKeyboardButton(
-            text=emojize('Изменить подтему:wrench:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
-        btn_delete_subtopic = InlineKeyboardButton(
-            text=emojize('Удалить подтему:wastebasket:'),
-            callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
-        kb_subtopic.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+        await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
     mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
     await bot.send_message(call.from_user.id, mes, reply_markup=kb_subtopic)

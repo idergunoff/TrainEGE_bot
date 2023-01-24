@@ -1,4 +1,3 @@
-from button import *
 from func.func_topic import *
 from func.func_user import check_admin
 
@@ -12,11 +11,7 @@ from func.func_user import check_admin
 @logger.catch
 async def open_topics(msg: types.Message):
     logger.info(f'User "{msg.from_user.id} - {msg.from_user.username}" PUSH "btn_topic"')
-    kb_topic = InlineKeyboardMarkup(row_width=2)
-    topics = await get_topics()
-    if len(topics) > 0:
-        for i in topics:
-            kb_topic.insert(InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb_topic.new(topic_id=i.id)))
+    kb_topic = await creat_kb_list_topic(cb_topic)
     if await check_admin(msg.from_user.id):
         kb_topic.row(btn_new_topic, btn_index_topic).row(btn_edit_topic, btn_delete_topic)
     mes = emojize('Выберите тему:')
@@ -62,10 +57,7 @@ async def add_topic(msg: types.Message, state: FSMContext):
 @logger.catch
 async def index_topic(call: types.CallbackQuery):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_index_topic"')
-    kb_topic = InlineKeyboardMarkup(row_width=2)
-    topics = await get_topics()
-    for i in topics:
-        kb_topic.insert(InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb_index_topic.new(topic_id=i.id)))
+    kb_topic = await creat_kb_list_topic(cb_index_topic)
     kb_topic.row(btn_back_topic)
     mes = emojize('Выберите тему для изменения порядкого номера:')
     await call.message.edit_text(mes, reply_markup=kb_topic)
@@ -122,12 +114,7 @@ async def up_down_priority(call: types.CallbackQuery, callback_data: dict):
 @logger.catch
 async def back_topic(call: types.CallbackQuery):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "back_topic"')
-    kb_topic = InlineKeyboardMarkup(row_width=2)
-    topics = await get_topics()
-    if len(topics) > 0:
-        for i in topics:
-            kb_topic.insert(
-                InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb_topic.new(topic_id=i.id)))
+    kb_topic = await creat_kb_list_topic(cb_topic)
     if await check_admin(call.from_user.id):
         kb_topic.row(btn_new_topic, btn_index_topic).row(btn_edit_topic, btn_delete_topic)
     mes = emojize('Выберите тему:')
@@ -144,10 +131,7 @@ async def back_topic(call: types.CallbackQuery):
 @logger.catch
 async def choose_edit_topic(call: types.CallbackQuery):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_edit_topic"')
-    kb_topic = InlineKeyboardMarkup(row_width=2)
-    topics = await get_topics()
-    for i in topics:
-        kb_topic.insert(InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb_edit_topic.new(topic_id=i.id)))
+    kb_topic = await creat_kb_list_topic(cb_edit_topic)
     kb_topic.row(btn_back_topic)
     mes = emojize('Выберите тему для редактирования:')
     await call.message.edit_text(mes, reply_markup=kb_topic)
@@ -190,10 +174,7 @@ async def edit_topic_db(msg: types.Message, state: FSMContext):
 @logger.catch
 async def choose_topic_delete(call: types.CallbackQuery):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_delete_topic"')
-    kb_topic = InlineKeyboardMarkup(row_width=2)
-    topics = await get_topics()
-    for i in topics:
-        kb_topic.insert(InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb_delete_topic.new(topic_id=i.id)))
+    kb_topic = await creat_kb_list_topic(cb_delete_topic)
     kb_topic.row(btn_back_topic)
     mes = emojize('Выберите тему для удаления:')
     await call.message.edit_text(mes, reply_markup=kb_topic)
@@ -213,7 +194,11 @@ async def delete_topic_db(call: types.CallbackQuery, callback_data: dict):
         mes = f'Тема <b>{topic_title}</b> удалена.'
         logger.success(f'User "{call.from_user.id} - {call.from_user.username}" TOPIC {topic_title} DELETE')
     await bot.send_message(call.from_user.id, mes)
-    await back_topic(call=call)
+    kb_topic = await creat_kb_list_topic(cb_topic)
+    if await check_admin(call.from_user.id):
+        kb_topic.row(btn_new_topic, btn_index_topic).row(btn_edit_topic, btn_delete_topic)
+    mes = emojize('Выберите тему:')
+    await bot.send_message(call.from_user.id, mes, reply_markup=kb_topic)
 
 
 

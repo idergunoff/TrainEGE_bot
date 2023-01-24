@@ -1,4 +1,5 @@
 from config import *
+from button import *
 from func.func_topic import topic_by_id
 
 
@@ -87,3 +88,32 @@ async def delete_subtopic(sub_id):
 @logger.catch
 async def count_questions(sub_id):
     return session.query(Question).filter(Question.subtopic_id == sub_id).count()
+
+
+@logger.catch
+async def create_kb_subtopic(topic, cb):
+    kb_subtopic = InlineKeyboardMarkup(row_width=2)
+    subtopics = await get_subtopics(topic.id)
+    if len(subtopics) > 0:
+        for i in subtopics:
+            kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
+                                                    callback_data=cb.new(sub_id=i.id)))
+    return kb_subtopic
+
+
+@logger.catch
+async def add_kb_admin(topic, kb):
+    btn_new_subtopic = InlineKeyboardButton(
+        text=emojize('Новая подтема:memo:'),
+        callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='new'))
+    btn_index_subtopic = InlineKeyboardButton(
+        text=emojize('Порядок подтем:up-down_arrow:'),
+        callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='index'))
+    btn_edit_subtopic = InlineKeyboardButton(
+        text=emojize('Изменить подтему:wrench:'),
+        callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='edit'))
+    btn_delete_subtopic = InlineKeyboardButton(
+        text=emojize('Удалить подтему:wastebasket:'),
+        callback_data=cb_subtopic_menu.new(topic_id=topic.id, type='delete'))
+    kb.row(btn_new_subtopic, btn_index_subtopic).row(btn_edit_subtopic, btn_delete_subtopic)
+    return kb

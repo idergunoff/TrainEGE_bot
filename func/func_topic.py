@@ -1,4 +1,5 @@
 from config import *
+from button import *
 
 
 @logger.catch
@@ -73,3 +74,13 @@ async def delete_topic(topic_id):
 @logger.catch
 async def count_subtopic(topic_id):
     return session.query(Subtopic).filter(Subtopic.topic_id == topic_id).count()
+
+
+@logger.catch
+async def creat_kb_list_topic(cb):
+    kb_topic = InlineKeyboardMarkup(row_width=2)
+    topics = await get_topics()
+    if len(topics) > 0:
+        for i in topics:
+            kb_topic.insert(InlineKeyboardButton(text=f'{i.index}. {i.title}', callback_data=cb.new(topic_id=i.id)))
+    return kb_topic
