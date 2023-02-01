@@ -21,6 +21,15 @@ cb_edit_subtopic = CallbackData('edit_subtopic', 'sub_id')  # выбор под�
 cb_delete_subtopic = CallbackData('delete_subtopic', 'sub_id')  # выбор подтемы для ее удаления
 cb_back_subtopic = CallbackData('subtopic_back', 'topic_id') # выбор темы для выхода к списку подтем
 
+cb_question = CallbackData('question', 'quest_id')   # выбор вопроса
+cb_new_question = CallbackData('new_question', 'sub_id')    # выбор подтемы для нового вопроса
+cb_exam_subtopic = CallbackData('exam_subtopic', 'sub_id')  # выбор подтемы для экзамена по подтеме
+cb_back_question = CallbackData('back_question', 'sub_id') # выбор подтемы для выхода к списку вопросов
+cb_question_pict = CallbackData('question_pict', 'quest_id')   # выбор следующего и предыдущего вопроса
+cb_del_quest = CallbackData('del_quest', 'quest_id') # выбор вопроса для удаления
+cb_edit_pict_quest = CallbackData('edit_pict_quest', 'quest_id') # выбор вопроса для редактирования фото
+cb_edit_answer_quest = CallbackData('edit_answer_quest', 'quest_id') # выбор вопроса для редактирования ответа
+
 
 # KeyboardButton
 
@@ -58,13 +67,17 @@ btn_delete_topic = InlineKeyboardButton(text=emojize('Удалить тему:wa
 # kb_option.row(btn_channel, btn_phone).row(btn_operator, btn_edit_del).row(btn_back_category)
 
 
-
-
 class TrainStates(StatesGroup):
     NEW_TOPIC = State()
     EDIT_TOPIC = State()
+
     NEW_SUBTOPIC = State()
     INDEX_SUBTOPIC = State()
     EDIT_SUBTOPIC = State()
     CHOOSE_EDIT_SUBTOPIC = State()
     CHOOSE_DELETE_SUBTOPIC = State()
+
+    NEW_QUESTION_PICT = State()
+    NEW_QUESTION_ANSWER = State()
+    EDIT_PICT_QUEST = State()
+    EDIT_ANSWER_QUEST = State()

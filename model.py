@@ -59,6 +59,8 @@ class Question(Base):
     subtopic_id = Column(Integer, ForeignKey('subtopic.id'))
     link = Column(String)
     answer = Column(String)
+    index = Column(Integer)
+    showing = Column(Boolean, default=True)
 
     subtopic = relationship('Subtopic', back_populates='questions')
     tasks = relationship('Task', back_populates='question')

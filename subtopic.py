@@ -153,7 +153,7 @@ async def up_down_index_subtopic(call: types.CallbackQuery, callback_data: dict,
     TrainStates.CHOOSE_DELETE_SUBTOPIC
 ])
 @logger.catch
-async def back_subtopic(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
+async def back_subtopic_state(call: types.CallbackQuery, callback_data: dict, state: FSMContext):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "back_subtopic"')
     await state.finish()
     topic = await topic_by_id(callback_data['topic_id'])
@@ -166,6 +166,20 @@ async def back_subtopic(call: types.CallbackQuery, callback_data: dict, state: F
     await call.message.edit_text(mes, reply_markup=kb_subtopic)
     await call.answer()
 
+
+@dp.callback_query_handler(cb_back_subtopic.filter())
+@logger.catch
+async def back_subtopic(call: types.CallbackQuery, callback_data: dict):
+    logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "back_subtopic"')
+    topic = await topic_by_id(callback_data['topic_id'])
+    logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+    if await check_admin(call.from_user.id):
+        await add_kb_admin(topic, kb_subtopic)
+    kb_subtopic.row(btn_back_topic)
+    mes = emojize(f'Тема <b>"{topic.title}"</b>.\nВыберите подтему:')
+    await call.message.edit_text(mes, reply_markup=kb_subtopic)
+    await call.answer()
 
     #########################
     ### Изменить подтему  ###

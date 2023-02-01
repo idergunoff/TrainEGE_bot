@@ -5,6 +5,7 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram import types
 from aiogram.utils.exceptions import MessageCantBeDeleted, BadRequest, MessageNotModified
 from aiogram.utils import exceptions
+from aiogram.types import InputMedia
 from loguru import logger
 
 from model import *
