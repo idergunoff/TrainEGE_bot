@@ -6,6 +6,8 @@ from emoji import emojize
 
 # CallbackData
 
+cb_verify = CallbackData('verify', 't_id', 'yesno') # подтверждение регистрации
+
 cb_topic = CallbackData('topic', 'topic_id')    # выбор темы
 cb_index_topic = CallbackData("index_topic", "topic_id")    # выбор темы для изменения порядка
 cb_up_down_index = CallbackData('up_down_index', 'topic_id', 'up_down') # повысить или понизить индекс
@@ -72,6 +74,10 @@ btn_delete_topic = InlineKeyboardButton(text=emojize('Удалить тему:wa
 
 
 class TrainStates(StatesGroup):
+    REG_NAME = State()
+    REG_SURNAME = State()
+    REG_YEAR = State()
+
     NEW_TOPIC = State()
     EDIT_TOPIC = State()
 
