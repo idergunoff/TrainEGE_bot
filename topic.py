@@ -7,7 +7,7 @@ from func.func_user import check_admin
     ###################
 
 
-@dp.message_handler(text='Темы')
+@dp.message_handler(text=emojize('Темы:abacus:'))
 @logger.catch
 async def open_topics(msg: types.Message):
     logger.info(f'User "{msg.from_user.id} - {msg.from_user.username}" PUSH "btn_topic"')

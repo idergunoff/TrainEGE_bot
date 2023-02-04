@@ -33,16 +33,20 @@ cb_edit_answer_quest = CallbackData('edit_answer_quest', 'quest_id') # выбо�
 
 # KeyboardButton
 
-btn_topic = KeyboardButton('Темы')
-btn_exam = KeyboardButton('Экзамен')
-btn_mistake = KeyboardButton('Работа над ошибками')
+btn_reg = KeyboardButton(emojize('Регистрация:crystal_ball:'))
+btn_topic = KeyboardButton(emojize('Темы:abacus:'))
+btn_exam = KeyboardButton(emojize('Экзамен:bullseye:'))
+btn_mistake = KeyboardButton(emojize('Работа над ошибками:scissors:'))
 
 
 
 # ReplyKeyboardMarkup
 
-kb_start = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
-kb_start.row(btn_topic, btn_exam).row(btn_mistake)
+kb_start_unreg = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+kb_start_unreg.row(btn_reg)
+
+kb_start_reg = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+kb_start_reg.row(btn_topic, btn_exam).row(btn_mistake)
 
 
 
