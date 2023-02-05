@@ -13,7 +13,7 @@ from func.func_topic import topic_by_id
 async def open_subtopics(call: types.CallbackQuery, callback_data: dict):
     topic = await topic_by_id(callback_data['topic_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
-    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, call.from_user.id)
     if await check_admin(call.from_user.id):
         await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)

@@ -1,6 +1,7 @@
 from config import *
 from button import *
 from func.func_topic import topic_by_id
+from func.func_user import user_by_id
 
 
 @logger.catch
@@ -91,8 +92,11 @@ async def count_questions(sub_id):
 
 
 @logger.catch
-async def create_kb_subtopic(topic, cb):
+async def create_kb_subtopic(topic, cb, t_id):
+    user = await user_by_id(t_id)
     kb_subtopic = InlineKeyboardMarkup(row_width=2)
+    if user.verify:
+        kb_subtopic.row(InlineKeyboardButton(text=f'Тест по теме "{topic.title}"', callback_data=cb_exam_topic.new(topic_id=topic.id)))
     subtopics = await get_subtopics(topic.id)
     if len(subtopics) > 0:
         for i in subtopics:

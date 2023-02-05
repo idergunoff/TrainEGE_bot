@@ -22,6 +22,7 @@ cb_up_down_index_subtopic = CallbackData('up_down_index_sub', 'sub_id', 'up_down
 cb_edit_subtopic = CallbackData('edit_subtopic', 'sub_id')  # выбор подтемы для ее редактирования
 cb_delete_subtopic = CallbackData('delete_subtopic', 'sub_id')  # выбор подтемы для ее удаления
 cb_back_subtopic = CallbackData('subtopic_back', 'topic_id') # выбор темы для выхода к списку подтем
+cb_exam_topic = CallbackData('exam_topic', 'topic_id')  # выбор темы для экзамена по теме
 
 cb_question = CallbackData('question', 'quest_id')   # выбор вопроса
 cb_new_question = CallbackData('new_question', 'sub_id')    # выбор подтемы для нового вопроса

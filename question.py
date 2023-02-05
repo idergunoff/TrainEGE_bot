@@ -17,7 +17,7 @@ async def open_questions(call: types.CallbackQuery, callback_data: dict):
     kb_question = InlineKeyboardMarkup(row_width=5)
     if await check_admin(call.from_user.id):
         await create_kb_admin_question(kb_question, subtopic)
-    await create_kb_question(kb_question, subtopic)
+    await create_kb_question(kb_question, subtopic, call.from_user.id)
     mes = emojize(f'Подтема <b>"{subtopic.title}"</b> раздела <b>"{subtopic.topic.title}"</b>.')
     await call.message.edit_text(mes, reply_markup=kb_question)
     await call.answer()
@@ -34,7 +34,7 @@ async def new_question(call: types.CallbackQuery, callback_data: dict, state: FS
     await state.update_data(sub_id=callback_data['sub_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "new_question"')
     await TrainStates.NEW_QUESTION_PICT.set()
-    await bot.send_message(call.from_user.id, 'Отправь изображениес с задачей.')
+    await bot.send_message(call.from_user.id, 'Отправь изображение с задачей.')
 
 
 @dp.message_handler(state=TrainStates.NEW_QUESTION_PICT, content_types=['photo'])

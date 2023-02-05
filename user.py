@@ -91,4 +91,4 @@ async def user_verify(call: types.CallbackQuery, callback_data: dict):
     await bot.send_message(callback_data['t_id'], message, reply_markup=kb_start_reg)
     for admin in await get_admins():
         await bot.send_message(admin.t_id, message_admin)
-
+    await call.message.delete()

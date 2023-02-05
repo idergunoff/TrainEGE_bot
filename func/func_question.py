@@ -1,5 +1,6 @@
 from config import *
 from button import *
+from func.func_user import user_by_id
 
 
 @logger.catch
@@ -21,10 +22,13 @@ async def create_kb_admin_question(kb, subtopic):
 
 
 @logger.catch
-async def create_kb_question(kb, subtopic):
-    btn_exam_subtopic = InlineKeyboardButton('Тест по подтеме', callback_data=cb_exam_subtopic.new(sub_id=subtopic.id))
+async def create_kb_question(kb, subtopic, t_id):
+    user = await user_by_id(t_id)
+    btn_exam_subtopic = InlineKeyboardButton(f'Тест по подтеме "{subtopic.title}"', callback_data=cb_exam_subtopic.new(sub_id=subtopic.id))
     btn_back_subtopic = InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data=cb_back_subtopic.new(topic_id=subtopic.topic_id))
-    kb.row(btn_exam_subtopic).row(btn_back_subtopic)
+    if user.verify:
+        kb.row(btn_exam_subtopic)
+    kb.row(btn_back_subtopic)
     return kb
 
 
