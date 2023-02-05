@@ -59,7 +59,7 @@ async def new_questions_answer(msg: types.Message, state: FSMContext):
     kb_question = InlineKeyboardMarkup(row_width=5)
     if await check_admin(msg.from_user.id):
         await create_kb_admin_question(kb_question, subtopic)
-    await create_kb_question(kb_question, subtopic)
+    await create_kb_question(kb_question, subtopic, msg.from_user.id)
     mes = emojize(f'Подтема <b>"{subtopic.title}"</b> раздела <b>"{subtopic.topic.title}"</b>.')
     await bot.send_message(msg.from_user.id, mes, reply_markup=kb_question)
 
@@ -108,7 +108,7 @@ async def back_questions(call: types.CallbackQuery, callback_data: dict):
     kb_question = InlineKeyboardMarkup(row_width=5)
     if await check_admin(call.from_user.id):
         await create_kb_admin_question(kb_question, subtopic)
-    await create_kb_question(kb_question, subtopic)
+    await create_kb_question(kb_question, subtopic, call.from_user.id)
     mes = emojize(f'Подтема <b>"{subtopic.title}"</b> раздела <b>"{subtopic.topic.title}"</b>.')
     await bot.send_message(call.from_user.id, mes, reply_markup=kb_question)
     await call.answer()
@@ -130,7 +130,7 @@ async def delete_question(call: types.CallbackQuery, callback_data: dict):
     kb_question = InlineKeyboardMarkup(row_width=5)
     if await check_admin(call.from_user.id):
         await create_kb_admin_question(kb_question, subtopic)
-    await create_kb_question(kb_question, subtopic)
+    await create_kb_question(kb_question, subtopic, call.from_user.id)
     mes = emojize(f'Подтема <b>"{subtopic.title}"</b> раздела <b>"{subtopic.topic.title}"</b>.')
     await bot.send_message(call.from_user.id, mes, reply_markup=kb_question)
     await call.answer()

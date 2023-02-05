@@ -39,7 +39,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'index':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "index_subtopic"')
         await TrainStates.INDEX_SUBTOPIC.set()
-        kb_subtopic = await  create_kb_subtopic(topic, cb_index_subtopic)
+        kb_subtopic = await  create_kb_subtopic(topic, cb_index_subtopic, call.from_user.id)
         kb_subtopic.insert(InlineKeyboardButton(
                 text=emojize(':BACK_arrow:Назад'),
                 callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -49,7 +49,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'edit':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_edit_subtopic"')
         await TrainStates.CHOOSE_EDIT_SUBTOPIC.set()
-        kb_subtopic = await create_kb_subtopic(topic, cb_edit_subtopic)
+        kb_subtopic = await create_kb_subtopic(topic, cb_edit_subtopic, call.from_user.id)
         kb_subtopic.insert(InlineKeyboardButton(
             text=emojize(':BACK_arrow:Назад'),
             callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -58,7 +58,7 @@ async def new_subtopic(call: types.CallbackQuery, callback_data: dict, state: FS
     elif callback_data['type'] == 'delete':
         logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "btn_delete_subtopic"')
         await TrainStates.CHOOSE_DELETE_SUBTOPIC.set()
-        kb_subtopic = await create_kb_subtopic(topic, cb_delete_subtopic)
+        kb_subtopic = await create_kb_subtopic(topic, cb_delete_subtopic, call.from_user.id)
         kb_subtopic.insert(InlineKeyboardButton(
             text=emojize(':BACK_arrow:Назад'),
             callback_data=cb_back_subtopic.new(topic_id=topic.id)))
@@ -83,7 +83,7 @@ async def add_subtopic(msg: types.Message, state: FSMContext):
         logger.success(f'USER "{msg.from_user.id} - {msg.from_user.username}" ADD SUBTOPIC {msg.text}')
         mes = emojize(f'Подтема <b>{msg.text}</b> добавлена в раздел <b>"{topic.title}"</b>.')
         await bot.send_message(msg.from_user.id, mes)
-        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, msg.from_user.id)
         if await check_admin(msg.from_user.id):
             await add_kb_admin(topic, kb_subtopic)
         kb_subtopic.row(btn_back_topic)
@@ -158,7 +158,7 @@ async def back_subtopic_state(call: types.CallbackQuery, callback_data: dict, st
     await state.finish()
     topic = await topic_by_id(callback_data['topic_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
-    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, call.from_user.id)
     if await check_admin(call.from_user.id):
         await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
@@ -173,7 +173,7 @@ async def back_subtopic(call: types.CallbackQuery, callback_data: dict):
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" PUSH "back_subtopic"')
     topic = await topic_by_id(callback_data['topic_id'])
     logger.info(f'User "{call.from_user.id} - {call.from_user.username}" OPEN TOPIC "{topic.title}"')
-    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, call.from_user.id)
     if await check_admin(call.from_user.id):
         await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
@@ -213,7 +213,7 @@ async def edit_subtopic_db(msg: types.Message, state: FSMContext):
         mes = emojize(f'Подтема изменена на <b>{msg.text}</b>.')
         await bot.send_message(msg.from_user.id, mes)
         topic = await topic_by_id(subtopic.topic_id)
-        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+        kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, msg.from_user.id)
         if await check_admin(msg.from_user.id):
             await add_kb_admin(topic, kb_subtopic)
         kb_subtopic.row(btn_back_topic)
@@ -243,7 +243,7 @@ async def delete_subtopic_db(call: types.CallbackQuery, callback_data: dict, sta
         logger.success(f'User "{call.from_user.id} - {call.from_user.username}" SUBTOPIC {subtopic_title} DELETE')
     await bot.send_message(call.from_user.id, mes)
     topic = await topic_by_id(topic_id)
-    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic)
+    kb_subtopic = await create_kb_subtopic(topic, cb_subtopic, call.from_user.id)
     if await check_admin(call.from_user.id):
         await add_kb_admin(topic, kb_subtopic)
     kb_subtopic.row(btn_back_topic)
