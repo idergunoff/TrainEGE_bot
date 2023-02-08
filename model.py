@@ -26,6 +26,7 @@ class User(Base):
     verify = Column(Boolean, default=False)
 
     exams = relationship('Exam', back_populates='user')
+    tasks = relationship('Task', back_populates='user')
 
 
 class Topic(Base):
@@ -83,13 +84,15 @@ class Task(Base):
     __tablename__ = 'task'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey('user.t_id'))
     exam_id = Column(Integer, ForeignKey('exam.id'))
     question_id = Column(Integer, ForeignKey('question.id'))
-    answer_text = Column(String)
+    answer_text = Column(String, default='')
     answer_point = Column(Integer)
     start = Column(DateTime)
     stop = Column(DateTime)
 
+    user = relationship('User', back_populates='tasks')
     exam = relationship('Exam', back_populates='tasks')
     question = relationship('Question', back_populates='tasks')
 

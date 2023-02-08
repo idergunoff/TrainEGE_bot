@@ -75,6 +75,7 @@ btn_delete_topic = InlineKeyboardButton(text=emojize('Удалить тему:wa
 
 
 class TrainStates(StatesGroup):
+
     REG_NAME = State()
     REG_SURNAME = State()
     REG_YEAR = State()
@@ -92,3 +93,5 @@ class TrainStates(StatesGroup):
     NEW_QUESTION_ANSWER = State()
     EDIT_PICT_QUEST = State()
     EDIT_ANSWER_QUEST = State()
+
+    EXAM = State()

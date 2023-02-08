@@ -3,6 +3,7 @@ from config import *
 from topic import *
 from subtopic import *
 from question import *
+from exam import *
 from user import *
 
 

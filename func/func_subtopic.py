@@ -95,13 +95,13 @@ async def count_questions(sub_id):
 async def create_kb_subtopic(topic, cb, t_id):
     user = await user_by_id(t_id)
     kb_subtopic = InlineKeyboardMarkup(row_width=2)
-    if user.verify:
-        kb_subtopic.row(InlineKeyboardButton(text=f'Тест по теме "{topic.title}"', callback_data=cb_exam_topic.new(topic_id=topic.id)))
     subtopics = await get_subtopics(topic.id)
     if len(subtopics) > 0:
         for i in subtopics:
             kb_subtopic.insert(InlineKeyboardButton(text=f'{topic.index}.{i.index}. {i.title}',
                                                     callback_data=cb.new(sub_id=i.id)))
+    if user.verify:
+        kb_subtopic.row(InlineKeyboardButton(text=f'Тест по теме "{topic.title}"', callback_data=cb_exam_topic.new(topic_id=topic.id)))
     return kb_subtopic
 
 
