@@ -37,10 +37,11 @@ async def accept_answer(msg: types.Message, state: FSMContext):
         await start_task(task.id)
     else:
         await state.finish()
+        test_name = await get_test_name(user_data['exam_id'])
         report = await create_report(user_data['exam_id'])
-        mes = 'Вы ответили на все вопросы. Ваш результат:\n' + report
+        mes = f'Вы ответили на все вопросы {test_name}. Ваш результат:\n' + report
         await bot.send_message(msg.from_user.id, mes)
         user = await user_by_id(msg.from_user.id)
-        mes = f'Результаты тестирования пользователя <b>{user.surname} {user.name} ({user.year})</b>:\n' + report
+        mes = f'Результаты {test_name} пользователя <b>{user.surname} {user.name} ({user.year})</b>:\n' + report
         for admin in await get_admins():
             await bot.send_message(admin.t_id, mes)

@@ -68,12 +68,25 @@ async def create_report(exam_id):
         all_time += int((t.stop - t.start).total_seconds())
     text = f'Правильных ответов: <b>{right_answer}</b> из <b>{len(list_tasks)}</b>\nОбщее время: <i>{all_time} секунд</i>\n'
     for i in list_tasks:
-        text += f'\nЗадание <u><b>{i[0]}</b></u>. Ответ: <b>{i[1]}</b>, правильный ответ: <b>{i[2]}</b>. Время: <i>{i[3]} секунд</i>'
+        text += f'\n<u><b>{i[0]}</b></u>. Ответ: <b>{i[1]}({i[2]})</b>. Время: <i>{i[3]} секунд</i>'
     return text
-
-
 
 
 @logger.catch
 async def exam_by_id(exam_id):
     return session.query(Exam).filter(Exam.id == exam_id).first()
+
+
+@logger.catch
+async def get_test_name(exam_id):
+    exam = await exam_by_id(exam_id)
+    name = 'тест'
+    if exam.type == 'sub':
+        name = f'теста по подтеме <b>"{exam.tasks[0].question.subtopic.title}"</b>'
+    elif exam.type == 'top':
+        name = f'теста по теме <b>"{exam.tasks[0].question.subtopic.topic.title}"</b>'
+    elif exam.type == 'exam':
+        name = 'теста по всем темам'
+    elif exam.type == 'error':
+        name = 'теста "Работа над ошибками"'
+    return name
