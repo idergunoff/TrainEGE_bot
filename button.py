@@ -30,6 +30,8 @@ cb_exam_subtopic = CallbackData('exam_subtopic', 'sub_id')  # выбор под�
 cb_back_question = CallbackData('back_question', 'sub_id') # выбор подтемы для выхода к списку вопросов
 cb_question_pict = CallbackData('question_pict', 'quest_id')   # выбор следующего и предыдущего вопроса
 cb_del_quest = CallbackData('del_quest', 'quest_id') # выбор вопроса для удаления
+cb_not_show_quest = CallbackData('not_show_quest', 'quest_id') # выбор вопроса для отметки не показывать
+cb_show_quest = CallbackData('show_quest', 'quest_id') # выбор вопроса для отметки показывать
 cb_edit_pict_quest = CallbackData('edit_pict_quest', 'quest_id') # выбор вопроса для редактирования фото
 cb_edit_answer_quest = CallbackData('edit_answer_quest', 'quest_id') # выбор вопроса для редактирования ответа
 

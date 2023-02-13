@@ -74,10 +74,11 @@ async def new_questions_answer(msg: types.Message, state: FSMContext):
 async def open_current_question(call: types.CallbackQuery, callback_data: dict):
     quest = await question_by_id(callback_data['quest_id'])
     kb_quest = await create_kb_current_quest(quest)
+    show_text = '' if quest.showing else emojize(':prohibited:Не используется в тестах')
     await bot.send_photo(
             call.from_user.id,
             quest.link,
-            caption=f'Вопрос <b>{quest.subtopic.topic.index}.{quest.subtopic.index}.{quest.index}</b> Правильный ответ: <b>{quest.answer}</b>',
+            caption=f'Вопрос <b>{quest.subtopic.topic.index}.{quest.subtopic.index}.{quest.index}</b> Правильный ответ: <b>{quest.answer}</b>\n<i>{show_text}</i>',
             reply_markup=kb_quest
             )
     await call.answer()
@@ -88,10 +89,11 @@ async def open_current_question(call: types.CallbackQuery, callback_data: dict):
 async def next_prev_question(call: types.CallbackQuery, callback_data: dict):
     quest = await question_by_id(callback_data['quest_id'])
     kb_quest = await create_kb_current_quest(quest)
+    show_text = '' if quest.showing else emojize(':prohibited:Не используется в тестах')
     photo = InputMedia(
             type='photo',
             media=quest.link,
-            caption=f'Вопрос <b>{quest.subtopic.topic.index}.{quest.subtopic.index}.{quest.index}</b> Правильный ответ: <b>{quest.answer}</b>')
+            caption=f'Вопрос <b>{quest.subtopic.topic.index}.{quest.subtopic.index}.{quest.index}</b> Правильный ответ: <b>{quest.answer}</b>\n<i>{show_text}</i>')
     await call.message.edit_media(photo, reply_markup=kb_quest)
 
 
@@ -136,6 +138,20 @@ async def delete_question(call: types.CallbackQuery, callback_data: dict):
     await call.answer()
 
 
+@dp.callback_query_handler(cb_not_show_quest.filter())
+@logger.catch
+async def not_show_question(call: types.CallbackQuery, callback_data: dict):
+    await update_not_showing(callback_data['quest_id'])
+    await next_prev_question(call=call, callback_data=callback_data)
+    await call.answer()
+
+
+@dp.callback_query_handler(cb_show_quest.filter())
+@logger.catch
+async def show_question(call: types.CallbackQuery, callback_data: dict):
+    await update_showing(callback_data['quest_id'])
+    await next_prev_question(call=call, callback_data=callback_data)
+    await call.answer()
 
     ##########################
     ### Изменение вопросов ###

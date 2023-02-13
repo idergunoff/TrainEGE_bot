@@ -61,6 +61,8 @@ async def create_kb_current_quest(quest):
     btn_prev = InlineKeyboardButton('<<<', callback_data=cb_question_pict.new(quest_id=list_id[index_prev]))
     btn_next = InlineKeyboardButton('>>>', callback_data=cb_question_pict.new(quest_id=list_id[index_next]))
     btn_del = InlineKeyboardButton('Удалить', callback_data=cb_del_quest.new(quest_id=quest.id))
+    btn_not_show = InlineKeyboardButton('Убрать', callback_data=cb_not_show_quest.new(quest_id=quest.id))
+    btn_show = InlineKeyboardButton('Вернуть', callback_data=cb_show_quest.new(quest_id=quest.id))
     btn_edit_pict = InlineKeyboardButton(
             emojize(':wrench:вопрос'),
             callback_data=cb_edit_pict_quest.new(quest_id=quest.id)
@@ -70,7 +72,14 @@ async def create_kb_current_quest(quest):
             callback_data=cb_edit_answer_quest.new(quest_id=quest.id)
             )
     btn_back = InlineKeyboardButton('Назад', callback_data=cb_back_question.new(sub_id=quest.subtopic_id))
-    kb_quest.row(btn_prev, btn_back, btn_next).row(btn_edit_pict, btn_edit_answ, btn_del)
+    kb_quest.row(btn_prev, btn_back, btn_next).row(btn_edit_pict, btn_edit_answ)
+    if session.query(Task).filter(Task.question_id == quest.id).count() > 0:
+        if quest.showing:
+            kb_quest.insert(btn_not_show)
+        else:
+            kb_quest.insert(btn_show)
+    else:
+        kb_quest.insert(btn_del)
     return kb_quest
 
 
@@ -82,6 +91,18 @@ async def delete_question_db(id):
     max_index = await get_question_max_index(quest.subtopic_id)
     for i in range(quest_index + 1, max_index[0] + 1):
         session.query(Question).filter(Question.index == i).update({'index': i - 1}, synchronize_session='fetch')
+    session.commit()
+
+
+@logger.catch
+async def update_not_showing(q_id):
+    session.query(Question).filter(Question.id == q_id).update({'showing': 0}, synchronize_session='fetch')
+    session.commit()
+
+
+@logger.catch
+async def update_showing(q_id):
+    session.query(Question).filter(Question.id == q_id).update({'showing': 1}, synchronize_session='fetch')
     session.commit()
 
 
