@@ -16,7 +16,12 @@ async def start(msg: types.Message):
         await add_user(msg.from_user.id, user_name)
         logger.success(f'Add new user - {user_name}; {msg.from_user.id}')
     mes = emojize(msg.from_user.first_name + ", добро пожаловать в бот \n<b>Подготовка к ЕГЭ</b>! \n:waving_hand:")
-    kb = kb_start_reg if await check_admin(msg.from_user.id) or await check_user_year(msg.from_user.id) else kb_start_unreg
+    if await check_admin(msg.from_user.id):
+        kb = kb_start_admin
+    elif await check_user_year(msg.from_user.id):
+        kb = kb_start_reg
+    else:
+        kb = kb_start_unreg
     await bot.send_message(msg.from_user.id, mes, reply_markup=kb)
 
 

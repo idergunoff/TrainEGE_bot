@@ -35,6 +35,8 @@ cb_show_quest = CallbackData('show_quest', 'quest_id') # выбор вопрос
 cb_edit_pict_quest = CallbackData('edit_pict_quest', 'quest_id') # выбор вопроса для редактирования фото
 cb_edit_answer_quest = CallbackData('edit_answer_quest', 'quest_id') # выбор вопроса для редактирования ответа
 
+cb_user_stat = CallbackData('user_stat', 't_id') # выбор пользователя для просмотра статистики
+cb_years = CallbackData('years', 'year') # выбор года для показа списка пользователей
 
 # KeyboardButton
 
@@ -42,6 +44,7 @@ btn_reg = KeyboardButton(emojize('Регистрация:crystal_ball:'))
 btn_topic = KeyboardButton(emojize('Темы:abacus:'))
 btn_exam = KeyboardButton(emojize('Экзамен:bullseye:'))
 btn_mistake = KeyboardButton(emojize('Работа над ошибками:scissors:'))
+btn_stat = KeyboardButton(emojize('Статистика:bar_chart:'))
 
 
 
@@ -53,6 +56,8 @@ kb_start_unreg.row(btn_reg)
 kb_start_reg = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 kb_start_reg.row(btn_topic, btn_exam).row(btn_mistake)
 
+kb_start_admin = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
+kb_start_admin.row(btn_topic).row(btn_stat)
 
 
 # InlineKeyboardButton

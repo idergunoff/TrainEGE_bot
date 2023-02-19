@@ -5,6 +5,7 @@ from subtopic import *
 from question import *
 from exam import *
 from user import *
+from user_stat import *
 
 
 async def shutdown(dispatcher: Dispatcher):
