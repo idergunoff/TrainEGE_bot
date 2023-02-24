@@ -7,6 +7,8 @@ from aiogram.utils.exceptions import MessageCantBeDeleted, BadRequest, MessageNo
 from aiogram.utils import exceptions
 from aiogram.types import InputMedia
 from loguru import logger
+import matplotlib.pyplot as plt
+import numpy as np
 
 from model import *
 from button import *
