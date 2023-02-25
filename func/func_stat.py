@@ -48,6 +48,24 @@ async def create_kb_user_top_stat(t_id, type_graph='execute'):
 
 
 @logger.catch
+async def create_kb_user_sub_stat(t_id, top_id, type_graph='execute'):
+    kb_user_sub_stat = InlineKeyboardMarkup(row_width=3)
+    btn_text = ':bar_chart:Выполняемость' if type_graph == 'und' else ':bar_chart:Понимаемость'
+    btn_type_graph = 'execute' if type_graph == 'und' else 'und'
+    topic = await topic_by_id(top_id)
+    topics = await get_topics()
+    list_id = [i.id for i in topics]
+    index_quest = list_id.index(topic.id)
+    index_prev = index_quest - 1 if index_quest != 0 else -1
+    index_next = index_quest + 1 if index_quest != len(list_id) - 1 else 0
+    kb_user_sub_stat.insert(InlineKeyboardButton('<<<', callback_data=cb_graph_sub.new(t_id=t_id, type=btn_type_graph, top_id=list_id[index_prev])))
+    kb_user_sub_stat.insert(InlineKeyboardButton(emojize(btn_text), callback_data=cb_graph_sub.new(t_id=t_id, type=type_graph, top_id=top_id)))
+    kb_user_sub_stat.insert(InlineKeyboardButton('>>>', callback_data=cb_graph_sub.new(t_id=t_id, type=btn_type_graph, top_id=list_id[index_next])))
+    kb_user_sub_stat.insert(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data=cb_back_top_stat.new(t_id=t_id)))
+    return kb_user_sub_stat
+
+
+@logger.catch
 async def get_list_years():
     users = session.query(User).filter_by(verify=1).all()
     years = []
@@ -314,6 +332,7 @@ async def draw_execute_sub_graph(topic_id, t_id):
 
     # Настраиваем оси и заголовок
     plt.ylabel('%')
+    print(topic_id)
     top = await topic_by_id(topic_id)
     plt.xlabel(f'Подтемы ({top.title})')
     user = await user_by_id(t_id)
