@@ -13,6 +13,17 @@ async def open_stat(msg: types.Message):
     await bot.send_message(msg.from_user.id, mes, reply_markup=kb_stat)
 
 
+@dp.callback_query_handler(cb_years.filter())
+@logger.catch
+async def choose_year(call: types.CallbackQuery, callback_data: dict):
+    years = await get_list_years()
+    mes = await create_text_users_stat(callback_data['year'])
+    kb_stat = await create_kb_users_stat(callback_data['year'])
+    await add_kb_year(kb_stat, callback_data['year'])
+    await call.message.edit_text(mes, reply_markup=kb_stat)
+    await call.answer()
+
+
 @dp.callback_query_handler(cb_user_stat.filter())
 @logger.catch
 async def open_stat_user(call: types.CallbackQuery, callback_data: dict):
@@ -20,11 +31,7 @@ async def open_stat_user(call: types.CallbackQuery, callback_data: dict):
     await draw_understand_top_graph(callback_data['t_id'])
     user = await user_by_id(callback_data['t_id'])
     photo_input = types.InputFile('graph.jpg')
-    mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>\n' \
-          f'<i>Понимаемость</i> (синим) - процент заданий в теме, которые были выполнены дважды подряд правильно, ' \
-          f'относительно общего количества заданий в теме.\n' \
-          f'<i>Процент правильных выполнений</i> (зелёным) - процент всех правильных ответов на задания в теме, ' \
-          f'относительно общего количества ответов на задания в теме.'
+    mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>'
     await bot.send_photo(call.from_user.id, photo_input, caption=mes, reply_markup=kb_user_stat)
     await call.answer()
 
@@ -36,21 +43,11 @@ async def top_graph_stat(call: types.CallbackQuery, callback_data: dict):
     if callback_data['type'] == 'execute':
         kb_user_stat = await create_kb_user_top_stat(callback_data['t_id'], 'und')
         await draw_understand_top_graph(callback_data['t_id'])
-        mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>\n' \
-          f'<i>Понимаемость</i> (синим) - процент заданий в теме, которые были выполнены дважды подряд правильно, ' \
-          f'относительно общего количества заданий в теме.\n' \
-          f'<i>Процент правильных выполнений</i> (зелёным) - процент всех правильных ответов на задания в теме, ' \
-          f'относительно общего количества ответов на задания в теме.'
+        mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>'
     else:
         kb_user_stat = await create_kb_user_top_stat(callback_data['t_id'])
         await draw_execute_top_graph(callback_data['t_id'])
-        mes = f'Выполняемость тем <b>{user.surname} {user.name} ({user.year})</b>\n' \
-              f'<i>Всего выполнений</i> (красным) - процент выполненных заданий в теме от общего количества ' \
-              f'выполненных заданий во всех темах.\n' \
-              f'<i>Всего правильных выполнений</i> (оранжевым) - процент правильно выполненных заданий в теме от ' \
-              f'общего количества правильно выполненных заданий во всех темах.\n' \
-              f'<i>Время по теме</i> (жёлтым) - процент времени, затраченного на выполнение заданий в теме, от ' \
-              f'общего времени, затраченного на выполнение заданий во всех темах. Значения над столбцами указаны в минутах.'
+        mes = f'Выполняемость тем <b>{user.surname} {user.name} ({user.year})</b>'
     photo_input = types.InputFile('graph.jpg')
     photo = InputMedia(
             type='photo',
@@ -74,11 +71,7 @@ async def open_top_stat_user(call: types.CallbackQuery, callback_data: dict):
     user = await user_by_id(callback_data['t_id'])
     topic = await topic_by_id(callback_data['top_id'])
     photo_input = types.InputFile('graph.jpg')
-    mes = f'Понимаемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>\n' \
-          f'<i>Понимаемость</i> (синим) - процент заданий в подтеме, которые были выполнены дважды подряд правильно, ' \
-          f'относительно общего количества заданий в подтеме.\n' \
-          f'<i>Процент правильных выполнений</i> (зелёным) - процент всех правильных ответов на задания в подтеме, ' \
-          f'относительно общего количества ответов на задания в подтеме.'
+    mes = f'Понимаемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>\n'
     photo = InputMedia(
             type='photo',
             media=photo_input,
@@ -95,27 +88,20 @@ async def sub_graph_stat(call: types.CallbackQuery, callback_data: dict):
     if callback_data['type'] == 'execute':
         kb_user_top_stat = await create_kb_user_sub_stat(callback_data['t_id'], callback_data['top_id'], 'und')
         await draw_understand_sub_graph(callback_data['top_id'], callback_data['t_id'])
-        mes = f'Понимаемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>\n' \
-              f'<i>Понимаемость</i> (синим) - процент заданий в подтеме, которые были выполнены дважды подряд правильно, ' \
-              f'относительно общего количества заданий в подтеме.\n' \
-              f'<i>Процент правильных выполнений</i> (зелёным) - процент всех правильных ответов на задания в подтеме, ' \
-              f'относительно общего количества ответов на задания в подтеме.'
+        mes = f'Понимаемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>\n'
     else:
         kb_user_top_stat = await create_kb_user_sub_stat(callback_data['t_id'], callback_data['top_id'])
         await draw_execute_sub_graph(callback_data['top_id'], callback_data['t_id'])
-        mes = f'Выполняемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>\n' \
-              f'<i>Всего выполнений</i> (красным) - процент выполненных заданий в подтеме от общего количества ' \
-              f'выполненных заданий во всех подтемах ({topic.title}).\n' \
-              f'<i>Всего правильных выполнений</i> (оранжевым) - процент правильно выполненных заданий в подтеме от ' \
-              f'общего количества правильно выполненных заданий во всех подтемах ({topic.title}).\n' \
-              f'<i>Время по теме</i> (жёлтым) - процент времени, затраченного на выполнение заданий в подтеме, от ' \
-              f'общего времени, затраченного на выполнение заданий во всех подтемах ({topic.title}). Значения над столбцами указаны в минутах.'
+        mes = f'Выполняемость подтем ({topic.title}) <b>{user.surname} {user.name} ({user.year})</b>'
     photo_input = types.InputFile('graph.jpg')
     photo = InputMedia(
         type='photo',
         media=photo_input,
         caption=mes)
-    await call.message.edit_media(photo, reply_markup=kb_user_top_stat)
+    try:
+        await call.message.edit_media(photo, reply_markup=kb_user_top_stat)
+    except MessageNotModified:
+        pass
     await call.answer()
 
 
@@ -126,14 +112,36 @@ async def back_top(call: types.CallbackQuery, callback_data: dict):
     await draw_understand_top_graph(callback_data['t_id'])
     user = await user_by_id(callback_data['t_id'])
     photo_input = types.InputFile('graph.jpg')
-    mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>\n' \
-          f'<i>Понимаемость</i> (синим) - процент заданий в теме, которые были выполнены дважды подряд правильно, ' \
-          f'относительно общего количества заданий в теме.\n' \
-          f'<i>Процент правильных выполнений</i> (зелёным) - процент всех правильных ответов на задания в теме, ' \
-          f'относительно общего количества ответов на задания в теме.'
+    mes = f'Понимаемость тем <b>{user.surname} {user.name} ({user.year})</b>'
     photo = InputMedia(
         type='photo',
         media=photo_input,
         caption=mes)
     await call.message.edit_media(photo, reply_markup=kb_user_stat)
     await call.answer()
+
+
+@dp.callback_query_handler(text='description')
+@logger.catch
+async def show_description(call: types.CallbackQuery):
+    mes = '<b><u>Описание графиков</u></b>\n\n' \
+        '<b><i>Понимаемость</i></b> (синий) - процент заданий в теме, которые были выполнены дважды подряд правильно, ' \
+        'относительно общего количества заданий в теме.\n' \
+        '<b><i>Процент правильных выполнений</i></b> (зелёный) - процент всех правильных ответов на задания в теме, ' \
+        'относительно общего количества ответов на задания в теме.\n'\
+        '<b><i>Всего выполнений</i></b> (красный) - процент выполненных заданий в теме от общего количества ' \
+        'выполненных заданий во всех темах.\n' \
+        '<b><i>Всего правильных выполнений</i></b> (оранжевый) - процент правильно выполненных заданий в теме от ' \
+        'общего количества правильно выполненных заданий во всех темах.\n' \
+        '<b><i>Время по теме</i></b> (жёлтый) - процент времени, затраченного на выполнение заданий в теме, от ' \
+        'общего времени, затраченного на выполнение заданий во всех темах. Значения над столбцами указаны в минутах.'
+    kb_OK = InlineKeyboardMarkup()
+    kb_OK.insert(InlineKeyboardButton('OK', callback_data='clear_desc'))
+    await bot.send_message(call.from_user.id, mes, reply_markup=kb_OK)
+    await call.answer()
+
+
+@dp.callback_query_handler(text='clear_desc')
+@logger.catch
+async def clear_description(call: types.CallbackQuery):
+    await call.message.delete()

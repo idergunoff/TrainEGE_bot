@@ -26,24 +26,31 @@ async def create_kb_users_stat(year):
 @logger.catch
 async def add_kb_year(kb, year):
     years = await get_list_years()
-    # todo smart row - every 4 button
-    for y in years:
-        if y == year:
-            kb.row(InlineKeyboardButton(text=emojize(f':backhand_index_pointing_right:{y}'), callback_data=0))
+    for n, y in enumerate(years):
+        if str(y) == year:
+            if n == 0:
+                kb.row(InlineKeyboardButton(text=emojize(f':backhand_index_pointing_right:{y}'), callback_data=0))
+            else:
+                kb.insert(InlineKeyboardButton(text=emojize(f':backhand_index_pointing_right:{y}'), callback_data=0))
         else:
-            kb.row(InlineKeyboardButton(text='y', callback_data=cb_years.new(year=y)))
+            if n == 0:
+                kb.row(InlineKeyboardButton(text=f'{y}', callback_data=cb_years.new(year=y)))
+            else:
+                kb.insert(InlineKeyboardButton(text=f'{y}', callback_data=cb_years.new(year=y)))
+
     return kb
 
 
 @logger.catch
-async def create_kb_user_top_stat(t_id, type_graph='execute'):
+async def create_kb_user_top_stat(t_id: int, type_graph: str ='execute'):
     kb_user_top_stat = InlineKeyboardMarkup(row_width=2)
     btn_text = ':bar_chart:Выполняемость' if type_graph == 'und' else ':bar_chart:Понимаемость'
-    kb_user_top_stat.row(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data='back_stat'))
     kb_user_top_stat.insert(InlineKeyboardButton(emojize(btn_text), callback_data=cb_graph_top.new(t_id=t_id, type=type_graph)))
+    kb_user_top_stat.insert(InlineKeyboardButton(emojize(':chart_increasing:Описание'), callback_data='description'))
     topics = await get_topics()
     for top in topics:
         kb_user_top_stat.insert(InlineKeyboardButton(top.title, callback_data=cb_top_stat.new(t_id=t_id, top_id=top.id)))
+    kb_user_top_stat.row(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data='back_stat'))
     return kb_user_top_stat
 
 
@@ -61,6 +68,7 @@ async def create_kb_user_sub_stat(t_id, top_id, type_graph='execute'):
     kb_user_sub_stat.insert(InlineKeyboardButton('<<<', callback_data=cb_graph_sub.new(t_id=t_id, type=btn_type_graph, top_id=list_id[index_prev])))
     kb_user_sub_stat.insert(InlineKeyboardButton(emojize(btn_text), callback_data=cb_graph_sub.new(t_id=t_id, type=type_graph, top_id=top_id)))
     kb_user_sub_stat.insert(InlineKeyboardButton('>>>', callback_data=cb_graph_sub.new(t_id=t_id, type=btn_type_graph, top_id=list_id[index_next])))
+    kb_user_sub_stat.insert(InlineKeyboardButton(emojize(':chart_increasing:Описание'), callback_data='description'))
     kb_user_sub_stat.insert(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data=cb_back_top_stat.new(t_id=t_id)))
     return kb_user_sub_stat
 
@@ -332,7 +340,6 @@ async def draw_execute_sub_graph(topic_id, t_id):
 
     # Настраиваем оси и заголовок
     plt.ylabel('%')
-    print(topic_id)
     top = await topic_by_id(topic_id)
     plt.xlabel(f'Подтемы ({top.title})')
     user = await user_by_id(t_id)
