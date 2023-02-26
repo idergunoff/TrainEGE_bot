@@ -41,6 +41,7 @@ cb_graph_top = CallbackData('graph_top', 't_id', 'type') # выбор польз
 cb_graph_sub = CallbackData('graph_sub', 't_id', 'type', 'top_id') # выбор пользователя, типа графика и темы для смены типа графика по подтемам
 cb_top_stat = CallbackData('top_stat', 't_id', 'top_id') # выбор пользователя и темы для перехода в статистику по подтемам в теме
 cb_back_top_stat = CallbackData('back_top_stat', 't_id') # выбор пользователя для возврата в статистику по всем темам
+cb_excel_stat = CallbackData('excel_stat', 't_id') # выбор пользователя для формирования таблицы статистики
 
 # KeyboardButton
 

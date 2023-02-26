@@ -1,3 +1,4 @@
+from func.func_question import get_questions
 from func.func_stat import *
 
 
@@ -145,3 +146,48 @@ async def show_description(call: types.CallbackQuery):
 @logger.catch
 async def clear_description(call: types.CallbackQuery):
     await call.message.delete()
+
+
+@dp.callback_query_handler(cb_excel_stat.filter())
+@logger.catch
+async def send_excel_stat(call: types.CallbackQuery, callback_data: dict):
+    wb = Workbook()
+    ws1 = wb.create_sheet('Статистика по вопросам')
+    ws2 = wb.create_sheet('Все решения')
+    topics = await get_topics()
+    n1, n2 = 1, 1
+    for n_top, top in enumerate(topics):
+        subtopics = await get_subtopics(top.id)
+        for n_sub, sub in enumerate(subtopics):
+            cell = ws1.cell(row=n1, column=1)
+            cell.value = top.title
+            cell = ws1.cell(row=n1, column=2)
+            cell.value = sub.title
+            questions = await get_questions(sub.id)
+            for n_quest, quest in enumerate(questions):
+                tasks = session.query(Task).filter(
+                    Task.user_id == callback_data['t_id'],
+                    Task.question_id == quest.id
+                ).order_by(Task.start).all()
+                corr_tasks = session.query(Task).filter(
+                    Task.user_id == callback_data['t_id'],
+                    Task.question_id == quest.id,
+                    Task.answer_point == 1
+                ).count()
+                cell = ws1.cell(row=n1, column=n_quest + 3)
+                cell.value = f'{corr_tasks}/{len(tasks)}'
+                cell = ws2.cell(row=n2, column=1)
+                cell.value = f'{top.index}.{sub.index}.{quest.index}'
+                for n_t, t in enumerate(tasks):
+                    cell = ws2.cell(row=n2, column=n_t + 2)
+                    cell.value = await create_cell_text(t)
+                n2 += 1
+            n1 += 1
+    wb.active = wb['Статистика по вопросам']
+    user = await user_by_id(callback_data['t_id'])
+    file_name = f'{user.surname}_{user.name}_статистика.xlsx'
+    wb.save(file_name)
+    await bot.send_document(call.from_user.id, open(file_name, 'rb'))
+    os.remove(file_name)
+    await call.answer()
+

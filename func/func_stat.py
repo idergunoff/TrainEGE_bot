@@ -47,10 +47,11 @@ async def create_kb_user_top_stat(t_id: int, type_graph: str ='execute'):
     btn_text = ':bar_chart:Выполняемость' if type_graph == 'und' else ':bar_chart:Понимаемость'
     kb_user_top_stat.insert(InlineKeyboardButton(emojize(btn_text), callback_data=cb_graph_top.new(t_id=t_id, type=type_graph)))
     kb_user_top_stat.insert(InlineKeyboardButton(emojize(':chart_increasing:Описание'), callback_data='description'))
+    kb_user_top_stat.insert(InlineKeyboardButton(emojize('📉Excel'), callback_data=cb_excel_stat.new(t_id=t_id)))
+    kb_user_top_stat.row(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data='back_stat'))
     topics = await get_topics()
     for top in topics:
         kb_user_top_stat.insert(InlineKeyboardButton(top.title, callback_data=cb_top_stat.new(t_id=t_id, top_id=top.id)))
-    kb_user_top_stat.row(InlineKeyboardButton(emojize(':BACK_arrow:Назад'), callback_data='back_stat'))
     return kb_user_top_stat
 
 
@@ -361,3 +362,8 @@ async def draw_execute_sub_graph(topic_id, t_id):
     plt.tight_layout()
     # Отображаем диаграмму
     plt.savefig('graph.jpg', dpi=300)
+
+
+@logger.catch
+async def create_cell_text(task):
+    return f'{task.start.strftime("%d.%m.%Y")} {task.answer_text} {(task.stop - task.start).total_seconds()/60}мин'

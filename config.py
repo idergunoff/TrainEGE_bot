@@ -9,11 +9,15 @@ from aiogram.types import InputMedia
 from loguru import logger
 import matplotlib.pyplot as plt
 import numpy as np
+from openpyxl import Workbook
+from openpyxl.styles import colors
+from openpyxl.styles import Font, Color, PatternFill, Side, Border
 
 from model import *
 from button import *
 import datetime
 import random
+import os
 
 TOKEN = '5579063326:AAHLjyssE2Bi8AqPX8qb6qUZR3_-Keonr1Q'
 
