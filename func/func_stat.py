@@ -131,7 +131,7 @@ async def draw_understand_top_graph(t_id):
                     und_count += 1
                     break
         und_count_list.append(und_count)
-        top_title_list.append(top.title)
+        top_title_list.append('\n'.join(top.title.split(' ')))
         und_percent_list.append(int(und_count / len(questions) * 100))
         top_task = session.query(Task).join(Question).join(Subtopic).filter(
             Task.user_id == t_id,
@@ -192,7 +192,7 @@ async def draw_understand_sub_graph(topic_id, t_id):
                     und_count += 1
                     break
         sub_und_count_list.append(und_count)
-        sub_title_list.append(sub.title)
+        sub_title_list.append('\n'.join(sub.title.split(' ')))
         sub_und_percent_list.append(int(und_count / len(questions) * 100))
         sub_task = session.query(Task).join(Question).filter(
             Task.user_id == t_id,
@@ -258,7 +258,7 @@ async def draw_execute_top_graph(t_id):
              top_time_task += int((task.stop - task.start).total_seconds())
         top_task_list.append(len(top_tasks))
         top_corr_task_list.append(top_corr_task)
-        top_title_list.append(top.title)
+        top_title_list.append('\n'.join(top.title.split(' ')))
         top_time_task_list.append(top_time_task)
     top_task_percent_list = [int(x / sum(top_task_list) * 100) for x in top_task_list]
     top_corr_task_percent_list = [int(x / sum(top_corr_task_list) * 100) for x in top_corr_task_list]
@@ -291,7 +291,7 @@ async def draw_execute_top_graph(t_id):
     for i in range(len(top_title_list)):
         ax.annotate(str(top_task_list[i]), xy=(i - 0.1, top_task_percent_list[i] + 0.5), fontsize=8)
         ax.annotate(str(top_corr_task_list[i]), xy=(i + bar_width - 0.1, top_corr_task_percent_list[i] + 0.5), fontsize=8)
-        ax.annotate(str(top_time_task_list[i] // 60), xy=(i + 2 * bar_width - 0.1, top_time_task_percent_list[i] + 0.5), fontsize=8)
+        ax.annotate(f'{int(top_time_task_list[i] // 60)}м:{int(top_time_task_list[i] % 60)}с', xy=(i + 2 * bar_width - 0.1, top_time_task_percent_list[i] + 0.5), fontsize=8)
 
     # Добавляем легенду
     ax.legend(fontsize=8)
@@ -320,7 +320,7 @@ async def draw_execute_sub_graph(topic_id, t_id):
             sub_time_task += int((task.stop - task.start).total_seconds())
         sub_task_list.append(len(sub_tasks))
         sub_corr_task_list.append(sub_corr_task)
-        sub_title_list.append(sub.title)
+        sub_title_list.append('\n'.join(sub.title.split(' ')))
         sub_time_task_list.append(sub_time_task)
     sub_task_percent_list = [int(x / sum(sub_task_list) * 100) for x in sub_task_list]
     sub_corr_task_percent_list = [int(x / sum(sub_corr_task_list) * 100) for x in sub_corr_task_list]
@@ -353,7 +353,7 @@ async def draw_execute_sub_graph(topic_id, t_id):
     for i in range(len(sub_title_list)):
         ax.annotate(str(sub_task_list[i]), xy=(i - 0.1, sub_task_percent_list[i] + 0.5), fontsize=8)
         ax.annotate(str(sub_corr_task_list[i]), xy=(i + bar_width - 0.1, sub_corr_task_percent_list[i] + 0.5), fontsize=8)
-        ax.annotate(str(sub_time_task_list[i] // 60), xy=(i + 2 * bar_width - 0.1, sub_time_task_percent_list[i] + 0.5), fontsize=8)
+        ax.annotate(f'{int(sub_time_task_list[i] // 60)}м:{int(sub_time_task_list[i] % 60)}с', xy=(i + 2 * bar_width - 0.1, sub_time_task_percent_list[i] + 0.5), fontsize=8)
 
     # Добавляем легенду
     ax.legend(fontsize=8)

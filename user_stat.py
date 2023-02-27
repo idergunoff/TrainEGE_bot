@@ -141,7 +141,7 @@ async def show_description(call: types.CallbackQuery):
         'два правильных ответа подряд, красный - если нет.\n' \
         '<b><i>Все решения</i></b> (вкладка 2 в таблице) - каждый ряд таблицы соответствует одному вопросу и содержит ' \
         'информацию о дате решения, ответе, потраченном времени и правильности ответа (зелёный - правильно, красный - ' \
-        'неправильно. Первая колонка - номер вопроса.)'
+        'неправильно). Первая колонка - номер вопроса.'
     kb_OK = InlineKeyboardMarkup()
     kb_OK.insert(InlineKeyboardButton('OK', callback_data='clear_desc'))
     await bot.send_message(call.from_user.id, mes, reply_markup=kb_OK)
