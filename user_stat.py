@@ -125,7 +125,7 @@ async def back_top(call: types.CallbackQuery, callback_data: dict):
 @dp.callback_query_handler(text='description')
 @logger.catch
 async def show_description(call: types.CallbackQuery):
-    mes = '<b><u>Описание графиков</u></b>\n\n' \
+    mes = '<b><u>Описание графиков и таблиц</u></b>\n\n' \
         '<b><i>Понимаемость</i></b> (синий) - процент заданий в теме, которые были выполнены дважды подряд правильно, ' \
         'относительно общего количества заданий в теме.\n' \
         '<b><i>Процент правильных выполнений</i></b> (зелёный) - процент всех правильных ответов на задания в теме, ' \
@@ -135,7 +135,13 @@ async def show_description(call: types.CallbackQuery):
         '<b><i>Всего правильных выполнений</i></b> (оранжевый) - процент правильно выполненных заданий в теме от ' \
         'общего количества правильно выполненных заданий во всех темах.\n' \
         '<b><i>Время по теме</i></b> (жёлтый) - процент времени, затраченного на выполнение заданий в теме, от ' \
-        'общего времени, затраченного на выполнение заданий во всех темах. Значения над столбцами указаны в минутах.'
+        'общего времени, затраченного на выполнение заданий во всех темах. Значения над столбцами указаны в минутах.\n' \
+        '<b><i>Статистика по вопросам</i></b> (вкладка 1 в таблице) - ячейки содержат статистику по каждому вопросу: ' \
+        'Номер вопроса, соотношение правильных ответов ко всем ответам, цвет ячейки отражает понимание вопроса (зелёный - ' \
+        'два правильных ответа подряд, красный - если нет.\n' \
+        '<b><i>Все решения</i></b> (вкладка 2 в таблице) - каждый ряд таблицы соответствует одному вопросу и содержит ' \
+        'информацию о дате решения, ответе, потраченном времени и правильности ответа (зелёный - правильно, красный - ' \
+        'неправильно. Первая колонка - номер вопроса.)'
     kb_OK = InlineKeyboardMarkup()
     kb_OK.insert(InlineKeyboardButton('OK', callback_data='clear_desc'))
     await bot.send_message(call.from_user.id, mes, reply_markup=kb_OK)
@@ -155,14 +161,22 @@ async def send_excel_stat(call: types.CallbackQuery, callback_data: dict):
     ws1 = wb.create_sheet('Статистика по вопросам')
     ws2 = wb.create_sheet('Все решения')
     topics = await get_topics()
-    n1, n2 = 1, 1
+    bd = Side(style='thin', color="000000")
+
+    for i in range(3, 103):
+        cell = ws1.cell(row=1, column=i)
+        cell.value = str(i - 2)
+        cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
+    n1, n2 = 2, 1
     for n_top, top in enumerate(topics):
         subtopics = await get_subtopics(top.id)
         for n_sub, sub in enumerate(subtopics):
             cell = ws1.cell(row=n1, column=1)
-            cell.value = top.title
+            cell.value = f'{top.index}. {top.title}'
+            cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
             cell = ws1.cell(row=n1, column=2)
-            cell.value = sub.title
+            cell.value = f'{sub.index}. {sub.title}'
+            cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
             questions = await get_questions(sub.id)
             for n_quest, quest in enumerate(questions):
                 tasks = session.query(Task).filter(
@@ -175,14 +189,36 @@ async def send_excel_stat(call: types.CallbackQuery, callback_data: dict):
                     Task.answer_point == 1
                 ).count()
                 cell = ws1.cell(row=n1, column=n_quest + 3)
-                cell.value = f'{corr_tasks}/{len(tasks)}'
+                cell.value = f'{top.index}.{sub.index}.{quest.index}.\n{corr_tasks}/{len(tasks)}'
+                cell.fill = PatternFill("solid", fgColor="FFE2E2")
+                for i in range(1, len(tasks)):
+                    if tasks[i].answer_point and tasks[i-1].answer_point:
+                        cell.fill = PatternFill("solid", fgColor="E2FFEC")
+                        break
+                cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
                 cell = ws2.cell(row=n2, column=1)
                 cell.value = f'{top.index}.{sub.index}.{quest.index}'
+                cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
                 for n_t, t in enumerate(tasks):
                     cell = ws2.cell(row=n2, column=n_t + 2)
                     cell.value = await create_cell_text(t)
+                    if t.answer_point:
+                        cell.fill = PatternFill("solid", fgColor="E2FFEC")
+                    else:
+                        cell.fill = PatternFill("solid", fgColor="FFE2E2")
+                    cell.border = Border(left=bd, top=bd, right=bd, bottom=bd)
                 n2 += 1
             n1 += 1
+    for n, column_cells in enumerate(ws2.columns):
+        length = max(len(str(cell.value.split('\n')[0])) for cell in column_cells if cell.value)
+        ws2.column_dimensions[column_cells[0].column_letter].width = length + 1
+    for column_cells in ws1.columns:
+        length = max(len(str(cell.value.split('\n')[0])) for n, cell in enumerate(column_cells) if cell.value)
+        ws1.column_dimensions[column_cells[0].column_letter].width = length + 1
+    for row_cells in ws2.rows:
+        ws2.row_dimensions[row_cells[0].row].height = 45
+    for row_cells in ws1.rows:
+        ws1.row_dimensions[row_cells[0].row].height = 30
     wb.active = wb['Статистика по вопросам']
     user = await user_by_id(callback_data['t_id'])
     file_name = f'{user.surname}_{user.name}_статистика.xlsx'
