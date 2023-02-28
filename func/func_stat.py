@@ -142,7 +142,10 @@ async def draw_understand_top_graph(t_id):
             Task.answer_point == 1,
             Subtopic.topic_id == top.id
         ).count()
-        percent_all_corr_list.append(int(top_corr_task / top_task * 100))
+        if top_task:
+            percent_all_corr_list.append(int(top_corr_task / top_task * 100))
+        else:
+            percent_all_corr_list.append(0)
         title_bar_list.append(f'{top_corr_task}\n{top_task}')
 
     # Создаем фигуру и оси
@@ -203,7 +206,10 @@ async def draw_understand_sub_graph(topic_id, t_id):
             Task.answer_point == 1,
             Question.subtopic_id == sub.id
         ).count()
-        sub_percent_all_corr_list.append(int(sub_corr_task / sub_task * 100))
+        if sub_task:
+            sub_percent_all_corr_list.append(int(sub_corr_task / sub_task * 100))
+        else:
+            sub_percent_all_corr_list.append(0)
         sub_title_bar_list.append(f'{sub_corr_task}\n{sub_task}')
 
     # Создаем фигуру и оси
@@ -260,9 +266,25 @@ async def draw_execute_top_graph(t_id):
         top_corr_task_list.append(top_corr_task)
         top_title_list.append('\n'.join(top.title.split(' ')))
         top_time_task_list.append(top_time_task)
-    top_task_percent_list = [int(x / sum(top_task_list) * 100) for x in top_task_list]
-    top_corr_task_percent_list = [int(x / sum(top_corr_task_list) * 100) for x in top_corr_task_list]
-    top_time_task_percent_list = [int(x / sum(top_time_task_list) * 100) for x in top_time_task_list]
+    # Проверяем, что списки не пустые, чтобы избежать деления на ноль
+    total_top_task = sum(top_task_list)
+    total_top_corr_task = sum(top_corr_task_list)
+    total_top_time_task = sum(top_time_task_list)
+
+    if total_top_task:
+        top_task_percent_list = [int(x / total_top_task * 100) for x in top_task_list]
+    else:
+        top_task_percent_list = [0 for x in top_task_list]
+
+    if total_top_corr_task:
+        top_corr_task_percent_list = [int(x / total_top_corr_task * 100) for x in top_corr_task_list]
+    else:
+        top_corr_task_percent_list = [0 for x in top_corr_task_list]
+
+    if total_top_time_task:
+        top_time_task_percent_list = [int(x / total_top_time_task * 100) for x in top_time_task_list]
+    else:
+        top_time_task_percent_list = [0 for x in top_time_task_list]
 
     # Создаем фигуру и оси
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -322,9 +344,25 @@ async def draw_execute_sub_graph(topic_id, t_id):
         sub_corr_task_list.append(sub_corr_task)
         sub_title_list.append('\n'.join(sub.title.split(' ')))
         sub_time_task_list.append(sub_time_task)
-    sub_task_percent_list = [int(x / sum(sub_task_list) * 100) for x in sub_task_list]
-    sub_corr_task_percent_list = [int(x / sum(sub_corr_task_list) * 100) for x in sub_corr_task_list]
-    sub_time_task_percent_list = [int(x / sum(sub_time_task_list) * 100) for x in sub_time_task_list]
+    # Проверяем, что списки не пустые, чтобы избежать деления на ноль
+    total_sub_task = sum(sub_task_list)
+    total_sub_corr_task = sum(sub_corr_task_list)
+    total_sub_time_task = sum(sub_time_task_list)
+
+    if total_sub_task:
+        sub_task_percent_list = [int(x / total_sub_task * 100) for x in sub_task_list]
+    else:
+        sub_task_percent_list = [0 for x in sub_task_list]
+
+    if total_sub_corr_task:
+        sub_corr_task_percent_list = [int(x / total_sub_corr_task * 100) for x in sub_corr_task_list]
+    else:
+        sub_corr_task_percent_list = [0 for x in sub_corr_task_list]
+
+    if total_sub_time_task:
+        sub_time_task_percent_list = [int(x / total_sub_time_task * 100) for x in sub_time_task_list]
+    else:
+        sub_time_task_percent_list = [0 for x in sub_time_task_list]
 
     # Создаем фигуру и оси
     fig, ax = plt.subplots(figsize=(10, 7))
